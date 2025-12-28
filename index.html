@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Okinawa Summer - 修正版</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuedraggable/4.1.0/vuedraggable.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --oki-blue: #0088CC; --bg: #F8FBFE; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); overflow-x: hidden; }
+        .header-gradient { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); height: 180px; position: relative; }
+        .header-curve { position: absolute; bottom: -1px; width: 100%; height: 40px; background: var(--bg); border-radius: 40px 40px 0 0; }
+        .glass-card { background: white; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #f0f4f8; }
+        .nav-active { background: #0088CC !important; color: white !important; transform: scale(1.05); }
+        .floating-btn { position: fixed; right: 20px; bottom: 100px; width: 60px; height: 60px; background: #0088CC; border-radius: 30px; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 50; box-shadow: 0 8px 20px rgba(0,136,204,0.3); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-24">
+    <div id="app">
+        <header class="header-gradient flex flex-col items-center justify-center text-white">
+            <h1 class="text-2xl font-black tracking-widest">沖繩夏日紀行</h1>
+            <p class="text-xs opacity-70">2025.04.14 - 04.18</p>
+            <div class="header-curve"></div>
+        </header>
+
+        <main class="px-4 -mt-4 relative z-10">
+            <div class="flex overflow-x-auto space-x-3 no-scrollbar py-2 mb-4">
+                <button v-for="day in tripDays" :key="day.date" 
+                    @click="currentDate = day.date"
+                    :class="['flex-shrink-0 w-16 h-20 rounded-2xl flex flex-col items-center justify-center transition-all bg-white text-slate-400 shadow-sm', { 'nav-active': currentDate === day.date }]">
+                    <span class="text-[10px] font-bold uppercase">{{ day.week }}</span>
+                    <span class="text-xl font-black">{{ day.dayNum }}</span>
+                </button>
+            </div>
+
+            <div v-if="activeTab === 'itinerary'">
+                <div v-if="!itineraries[currentDate] || itineraries[currentDate].length === 0" class="text-center py-20 text-slate-300">
+                    <p>這天還沒有行程，點擊右下角 + 新增</p>
+                </div>
+
+                <draggable v-model="itineraries[currentDate]" item-key="id" @end="saveData" handle=".handle">
+                    <template #item="{element, index}">
+                        <div class="glass-card p-4 mb-4 flex gap-4 items-center handle" @click="openEditModal(element, index)">
+                            <div class="text-2xl">{{ getIcon(element.category) }}</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h3 class="font-bold text-slate-700">{{ element.name }}</h3>
+                                    <span class="text-[10px] font-bold text-blue-400">{{ element.startTime }}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1 line-clamp-1">{{ element.note || '點擊編輯詳情...' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </draggable>
+                
+                <button @click="openAddModal" class="floating-btn">+</button>
+            </div>
+            
+            <div v-if="activeTab === 'info'" class="py-10 text-center text-slate-400">資訊頁面建設中...</div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-md border-t flex justify-around items-center z-50">
+            <button @click="activeTab = 'itinerary'" :class="activeTab === 'itinerary' ? 'text-blue-500' : 'text-slate-300'">
+                <div class="text-xl">📍</div>
+                <span class="text-[10px] font-bold">行程</span>
+            </button>
+            <button @click="activeTab = 'info'" :class="activeTab === 'info' ? 'text-blue-500' : 'text-slate-300'">
+                <div class="text-xl">ℹ️</div>
+                <span class="text-[10px] font-bold">資訊</span>
+            </button>
+        </nav>
+
+        <div v-if="showModal" class="fixed inset-0 z-[100] bg-black/50 flex items-end">
+            <div class="bg-white w-full rounded-t-[32px] p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">{{ isEdit ? '編輯行程' : '新增行程' }}</h3>
+                    <button @click="showModal = false" class="text-slate-400 text-xl">✕</button>
+                </div>
+                <div class="space-y-4">
+                    <input v-model="form.name" placeholder="名稱" class="w-full bg-slate-100 p-4 rounded-xl outline-none font-bold">
+                    <div class="flex gap-2">
+                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-xl outline-none">
+                            <option v-for="c in ['景點','美食','住宿','交通','航班']">{{c}}</option>
+                        </select>
+                        <input type="time" v-model="form.startTime" class="flex-1 bg-slate-100 p-4 rounded-xl outline-none">
+                    </div>
+                    <textarea v-model="form.note" placeholder="備註" class="w-full bg-slate-100 p-4 rounded-xl outline-none h-24"></textarea>
+                    
+                    <div class="flex gap-3 pt-4">
+                        <button v-if="isEdit" @click="confirmDelete" class="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl font-bold">刪除</button>
+                        <button @click="saveForm" class="flex-[2] py-4 bg-blue-500 text-white rounded-2xl font-bold shadow-lg">儲存更變</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const activeTab = ref('itinerary');
+                const currentDate = ref('2025-04-14');
+                const showModal = ref(false);
+                const isEdit = ref(false);
+                const editIdx = ref(null);
+                
+                const tripDays = [
+                    { date: '2025-04-14', week: 'Sun', dayNum: '14' },
+                    { date: '2025-04-15', week: 'Mon', dayNum: '15' },
+                    { date: '2025-04-16', week: 'Tue', dayNum: '16' },
+                    { date: '2025-04-17', week: 'Wed', dayNum: '17' },
+                    { date: '2025-04-18', week: 'Thu', dayNum: '18' }
+                ];
+
+                const itineraries = ref({
+                    '2025-04-14': [], '2025-04-15': [], '2025-04-16': [], '2025-04-17': [], '2025-04-18': []
+                });
+
+                const form = ref({ name: '', category: '景點', startTime: '10:00', note: '' });
+
+                const saveData = () => {
+                    localStorage.setItem('OKI_V5_DATA', JSON.stringify(itineraries.value));
+                    console.log("資料已儲存", itineraries.value);
+                };
+
+                const loadData = () => {
+                    const data = localStorage.getItem('OKI_V5_DATA');
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            // 確保結構完整
+                            tripDays.forEach(d => {
+                                if (!parsed[d.date]) parsed[d.date] = [];
+                            });
+                            itineraries.value = parsed;
+                        } catch(e) { console.error("讀取失敗", e); }
+                    }
+                };
+
+                const openAddModal = () => {
+                    isEdit.value = false;
+                    form.value = { name: '', category: '景點', startTime: '10:00', note: '' };
+                    showModal.value = true;
+                };
+
+                const openEditModal = (item, index) => {
+                    isEdit.value = true;
+                    editIdx.value = index;
+                    form.value = { ...item };
+                    showModal.value = true;
+                };
+
+                const saveForm = () => {
+                    if (!form.value.name) return alert("請輸入名稱");
+                    
+                    // 重要：使用 .value[key] 確保響應式
+                    const targetList = itineraries.value[currentDate.value];
+                    
+                    if (isEdit.value) {
+                        targetList[editIdx.value] = { ...form.value };
+                    } else {
+                        targetList.push({ ...form.value, id: Date.now() });
+                    }
+                    
+                    saveData();
+                    showModal.value = false;
+                };
+
+                const confirmDelete = () => {
+                    if (confirm("確定刪除？")) {
+                        itineraries.value[currentDate.value].splice(editIdx.value, 1);
+                        saveData();
+                        showModal.value = false;
+                    }
+                };
+
+                const getIcon = (cat) => {
+                    const icons = { '景點':'🏝️', '美食':'🍜', '住宿':'🏨', '交通':'🚗', '航班':'✈️' };
+                    return icons[cat] || '📍';
+                };
+
+                onMounted(loadData);
+
+                return {
+                    activeTab, currentDate, tripDays, itineraries, showModal, isEdit, form,
+                    saveData, openAddModal, openEditModal, saveForm, confirmDelete, getIcon
+                };
+            }
+        }).component('draggable', window.vuedraggable).mount('#app');
+    </script>
+</body>
+</html>
