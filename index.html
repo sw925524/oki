@@ -13,38 +13,41 @@
         [v-cloak] { display: none; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; padding-bottom: 100px; }
         
-        /* 更新標題背景：使用新圖並淡化處理 */
+        /* 核心 CSS 修正：標題背景與淡化效果 */
         .header-illustration {
-            background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.2)), 
-                        url('https://r.jina.ai/i/05e24c56259d435084931a264a6d10be');
+            /* 背景圖片：使用穩定的海灘圖，疊加 40% 黑色的漸層以凸顯文字 */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), 
+                        url('https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=2073&auto=format&fit=crop');
             background-size: cover;
-            background-position: center bottom;
-            height: 250px; /* 稍微增加高度讓手機滿屏感更強 */
+            background-position: center;
+            height: 250px; /* 手機屏佔比優化 */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8); /* 增強文字陰影 */
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
-            box-shadow: inset 0 -30px 60px rgba(0,0,0,0.2);
+            position: relative;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .nav-active { background: #0369a1 !important; color: white !important; transform: scale(1.05); }
         .tab-btn-active { color: #0369a1; border-bottom: 3px solid #0369a1; }
+        
+        /* 懸浮按鈕 */
         .fab { position: fixed; right: 20px; bottom: 110px; width: 60px; height: 60px; background: #0369a1; color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 20px rgba(3,105,161,0.3); z-index: 50; border: none; }
     </style>
 </head>
 <body>
     <div id="app" v-cloak>
-        <header class="header-illustration relative">
+        <header class="header-illustration">
             <h1 class="text-3xl font-black tracking-widest">沖繩夏日紀行</h1>
-            <p class="text-sm font-bold mt-1 opacity-90">APRIL 14 - APRIL 18, 2026</p>
-            <div class="absolute bottom-4 right-6 bg-black/20 backdrop-blur-md p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/20">
+            <p class="text-sm font-bold mt-1 opacity-90 tracking-tighter">APRIL 14 - APRIL 18, 2026</p>
+            <div class="absolute bottom-4 right-6 bg-black/30 backdrop-blur-md p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/20">
                 <span class="text-xl">☀️</span>
-                <span class="text-xs font-bold">28°C</span>
+                <span class="text-xs font-bold text-white">28°C</span>
             </div>
         </header>
 
@@ -66,7 +69,6 @@
                                 <span class="border-t-2 border-dotted w-12 border-slate-300"></span>
                                 <span>{{ element.transTime || '15' }} min</span>
                             </div>
-
                             <div class="bg-white rounded-3xl p-4 shadow-sm flex gap-4 items-center handle" @click="openEdit('plan', index)">
                                 <div class="text-3xl">{{ getIcon(element.category) }}</div>
                                 <div class="flex-1">
@@ -74,13 +76,9 @@
                                         <h3 class="font-bold text-slate-700">{{ element.name }}</h3>
                                         <span class="text-xs font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded">{{ element.time }}</span>
                                     </div>
-                                    <div class="flex gap-2 mt-1 flex-wrap">
-                                        <span v-if="element.openTime" class="text-[9px] text-slate-400">🕒 {{ element.openTime }}</span>
-                                        <span v-if="element.ticket" class="text-[9px] text-orange-400">🎫 {{ element.ticket }}</span>
-                                    </div>
                                     <p class="text-[11px] text-slate-400 mt-2 line-clamp-1 italic">{{ element.note }}</p>
                                     <div class="flex gap-2 mt-3">
-                                        <button @click.stop="openNav(element.name)" class="text-[10px] font-bold text-sky-500 bg-sky-50 px-3 py-1 rounded-full">Google Map 導航 ↗</button>
+                                        <button @click.stop="openNav(element.name)" class="text-[10px] font-bold text-sky-500 bg-sky-50 px-3 py-1 rounded-full">導航 ↗</button>
                                     </div>
                                 </div>
                             </div>
@@ -91,70 +89,43 @@
             </div>
 
             <div v-if="activeTab === 'food'" class="space-y-4 pb-10">
-                <h2 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">🍕 沖繩美食口袋名單</h2>
-                <div v-for="food in foodList" class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
-                    <div class="p-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-slate-700 text-lg">{{ food.name }}</h3>
-                            <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg">{{ food.tag }}</span>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-2">{{ food.desc }}</p>
-                        <div class="flex gap-2 mt-4">
-                            <button @click="openNav(food.name)" class="flex-1 text-xs font-bold py-2 bg-slate-50 rounded-xl text-slate-600">查看位置</button>
-                            <button @click="addToPlan(food)" class="flex-1 text-xs font-bold py-2 bg-orange-500 rounded-xl text-white">加入行程</button>
-                        </div>
+                <h2 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">🍕 美食名單</h2>
+                <div v-for="food in foodList" class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-slate-700 text-lg">{{ food.name }}</h3>
+                        <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg">{{ food.tag }}</span>
+                    </div>
+                    <p class="text-xs text-slate-400">{{ food.desc }}</p>
+                    <div class="flex gap-2 mt-4">
+                        <button @click="openNav(food.name)" class="flex-1 text-xs font-bold py-2 bg-slate-50 rounded-xl text-slate-600">位置</button>
+                        <button @click="addToPlan(food)" class="flex-1 text-xs font-bold py-2 bg-orange-500 rounded-xl text-white">加入行程</button>
                     </div>
                 </div>
             </div>
 
             <div v-if="activeTab === 'info'" class="space-y-4 pb-10">
                 <div class="bg-white p-6 rounded-[32px] shadow-sm text-center">
-                    <p class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Countdown to 2026</p>
-                    <div class="text-2xl font-black text-sky-600">沖繩之旅倒數中 ✈️</div>
+                    <p class="text-xs font-bold text-slate-400 mb-1 uppercase">Countdown</p>
+                    <div class="text-2xl font-black text-sky-600">沖繩 2026 ✈️</div>
                 </div>
                 <div class="bg-white p-6 rounded-[32px] shadow-sm">
-                    <h3 class="font-black text-slate-800 mb-4">💴 當地匯率換算</h3>
+                    <h3 class="font-black text-slate-800 mb-4">💴 匯率換算 (0.21)</h3>
                     <div class="space-y-3">
-                        <div class="relative">
-                            <input type="number" v-model="fx.jpy" @input="fx.twd = (fx.jpy * 0.21).toFixed(0)" class="w-full bg-slate-50 p-4 rounded-2xl outline-none font-bold text-sky-600" placeholder="輸入日幣 (JPY)">
-                            <span class="absolute right-4 top-4 font-bold text-slate-300">JPY</span>
-                        </div>
-                        <div class="flex justify-center text-slate-300">⬇</div>
-                        <div class="relative">
-                            <div class="w-full bg-slate-100 p-4 rounded-2xl font-bold text-slate-500">TWD {{ fx.twd }}</div>
-                            <span class="absolute right-4 top-4 font-bold text-slate-300">TWD</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-[32px] shadow-sm">
-                    <h3 class="font-black text-slate-800 mb-4 italic">🏨 飯店 & 租車</h3>
-                    <div class="space-y-3">
-                        <div v-for="info in infoList" class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl">
-                            <div>
-                                <p class="font-bold text-sm">{{ info.title }}</p>
-                                <p class="text-[10px] text-slate-400">{{ info.sub }}</p>
-                            </div>
-                            <button @click="openNav(info.title)" class="p-2 bg-white rounded-xl shadow-sm">📍</button>
-                        </div>
+                        <input type="number" v-model="fx.jpy" @input="fx.twd = (fx.jpy * 0.21).toFixed(0)" class="w-full bg-slate-50 p-4 rounded-2xl outline-none font-bold text-sky-600" placeholder="日幣 (JPY)">
+                        <div class="w-full bg-slate-100 p-4 rounded-2xl font-bold text-slate-500">TWD {{ fx.twd }}</div>
                     </div>
                 </div>
             </div>
 
             <div v-if="activeTab === 'cost'" class="pb-10">
-                <div class="bg-slate-900 text-white p-8 rounded-[40px] shadow-xl mb-6">
-                    <p class="text-xs font-bold opacity-60 uppercase tracking-widest">Total Expenses</p>
-                    <div class="flex items-baseline gap-2 mt-1">
-                        <h2 class="text-4xl font-black">¥{{ totalCost }}</h2>
-                        <span class="text-sm opacity-60">≈ NT${{ (totalCost * 0.21).toFixed(0) }}</span>
-                    </div>
+                <div class="bg-slate-900 text-white p-8 rounded-[40px] shadow-xl mb-6 text-center">
+                    <p class="text-xs font-bold opacity-60">TOTAL SPENT</p>
+                    <h2 class="text-4xl font-black">¥{{ totalCost }}</h2>
                 </div>
                 <div v-for="(item, index) in costs" :key="index" class="bg-white p-4 rounded-3xl mb-3 shadow-sm flex justify-between items-center" @click="openEdit('cost', index)">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl">{{ getCostIcon(item.category) }}</div>
-                        <div>
-                            <p class="font-bold text-slate-700">{{ item.name }}</p>
-                            <p class="text-[10px] text-slate-300 font-bold uppercase">{{ item.payMethod }} · {{ item.category }}</p>
-                        </div>
+                        <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">{{ getCostIcon(item.category) }}</div>
+                        <p class="font-bold text-slate-700">{{ item.name }}</p>
                     </div>
                     <p class="font-black text-slate-700">¥{{ item.amount }}</p>
                 </div>
@@ -162,52 +133,35 @@
             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-around items-center z-40 px-4">
-            <button @click="activeTab = 'plan'" :class="{'tab-btn-active': activeTab === 'plan'}" class="flex flex-col items-center p-2 text-slate-300">
-                <span class="text-xl">📍</span><span class="text-[10px] font-bold mt-1">行程</span>
-            </button>
-            <button @click="activeTab = 'info'" :class="{'tab-btn-active': activeTab === 'info'}" class="flex flex-col items-center p-2 text-slate-300">
-                <span class="text-xl">ℹ️</span><span class="text-[10px] font-bold mt-1">資訊</span>
-            </button>
-            <button @click="activeTab = 'food'" :class="{'tab-btn-active': activeTab === 'food'}" class="flex flex-col items-center p-2 text-slate-300">
-                <span class="text-xl">🍕</span><span class="text-[10px] font-bold mt-1">美食</span>
-            </button>
-            <button @click="activeTab = 'cost'" :class="{'tab-btn-active': activeTab === 'cost'}" class="flex flex-col items-center p-2 text-slate-300">
-                <span class="text-xl">💰</span><span class="text-[10px] font-bold mt-1">花費</span>
+        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-white/90 backdrop-blur-xl border-t flex justify-around items-center z-40">
+            <button v-for="t in ['plan','info','food','cost']" @click="activeTab = t" :class="{'tab-btn-active': activeTab === t}" class="flex flex-col items-center p-2 text-slate-300">
+                <span class="text-xl">{{ {plan:'📍',info:'ℹ️',food:'🍕',cost:'💰'}[t] }}</span>
             </button>
         </nav>
 
         <div v-if="showModal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end">
-            <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="bg-white w-full rounded-t-[40px] p-8 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black">{{ isEdit ? '編輯項目' : '新增項目' }}</h3>
-                    <button @click="showModal = false" class="text-slate-300 text-2xl">✕</button>
+                    <h3 class="text-xl font-black">編輯項目</h3>
+                    <button @click="showModal = false" class="text-slate-300">✕</button>
                 </div>
                 <div v-if="modalType === 'plan'" class="space-y-4">
-                    <div class="relative">
-                        <input v-model="form.name" placeholder="景點名稱" class="w-full bg-slate-100 p-4 rounded-2xl outline-none font-bold">
-                        <button @click="searchMap" class="absolute right-3 top-3 bg-white text-[10px] font-bold px-3 py-1 shadow-sm rounded-lg text-sky-600 border border-sky-100">搜尋地圖</button>
-                    </div>
+                    <input v-model="form.name" placeholder="名稱" class="w-full bg-slate-100 p-4 rounded-2xl font-bold">
                     <div class="flex gap-2">
-                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none font-bold">
+                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-2xl">
                             <option v-for="c in ['景點','住宿','美食','購物','航班','其他']">{{c}}</option>
                         </select>
-                        <input type="time" v-model="form.time" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none font-bold">
+                        <input type="time" v-model="form.time" class="flex-1 bg-slate-100 p-4 rounded-2xl">
                     </div>
-                    <textarea v-model="form.note" placeholder="特色與備註..." class="w-full bg-slate-100 p-4 rounded-2xl outline-none h-24 text-sm"></textarea>
+                    <textarea v-model="form.note" placeholder="備註..." class="w-full bg-slate-100 p-4 rounded-2xl h-24"></textarea>
                 </div>
                 <div v-if="modalType === 'cost'" class="space-y-4">
-                    <input v-model="form.name" placeholder="消費名稱" class="w-full bg-slate-100 p-4 rounded-2xl outline-none font-bold">
-                    <div class="flex gap-2">
-                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none font-bold">
-                            <option v-for="c in ['交通','飲食','住宿','門票','購物','其他']">{{c}}</option>
-                        </select>
-                        <input type="number" v-model="form.amount" placeholder="金額 (日幣)" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none font-black text-sky-600">
-                    </div>
+                    <input v-model="form.name" placeholder="名稱" class="w-full bg-slate-100 p-4 rounded-2xl font-bold">
+                    <input type="number" v-model="form.amount" placeholder="金額 (JPY)" class="w-full bg-slate-100 p-4 rounded-2xl font-black text-sky-600">
                 </div>
                 <div class="flex gap-3 mt-8">
                     <button v-if="isEdit" @click="deleteItem" class="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl font-bold">刪除</button>
-                    <button @click="save" class="flex-[2] py-4 bg-sky-600 text-white rounded-2xl font-bold">儲存項目</button>
+                    <button @click="save" class="flex-[2] py-4 bg-sky-600 text-white rounded-2xl font-bold">儲存</button>
                 </div>
             </div>
         </div>
@@ -233,31 +187,17 @@
                     { date: '2026-04-18', week: 'Sat', dayNum: '18' }
                 ];
 
-                const itineraries = ref({
-                    '2026-04-14': [], '2026-04-15': [], '2026-04-16': [], '2026-04-17': [], '2026-04-18': []
-                });
-
+                const itineraries = ref({'2026-04-14':[], '2026-04-15':[], '2026-04-16':[], '2026-04-17':[], '2026-04-18':[]});
                 const costs = ref([]);
                 const foodList = ref([
-                    { name: '暖暮拉麵 那霸店', tag: '美食', desc: '沖繩必吃拉麵，芝麻香氣濃郁。' },
-                    { name: '幸福鬆餅 瀨長島', tag: '甜點', desc: '配著海景吃超軟綿鬆餅。' },
-                    { name: '蝦蝦飯 古宇利島', tag: '必吃', desc: '蒜香奶油蝦，古宇利島人氣王。' }
+                    { name: '暖暮拉麵 那霸店', tag: '美食', desc: '沖繩必吃拉麵。' },
+                    { name: '幸福鬆餅 瀨長島', tag: '甜點', desc: '海景超美。' }
                 ]);
-                const infoList = ref([
-                    { title: '那霸希爾頓飯店', sub: '住宿 · 4星級' },
-                    { title: 'OTS 租車 那霸店', sub: '交通 · 接駁服務' }
-                ]);
-
+                const infoList = ref([{ title: '那霸飯店', sub: '住宿' }]);
                 const form = ref({});
                 const totalCost = computed(() => costs.value.reduce((sum, i) => sum + Number(i.amount || 0), 0));
 
-                const saveData = () => {
-                    localStorage.setItem('OKI_2026_STORAGE', JSON.stringify({
-                        itineraries: itineraries.value,
-                        costs: costs.value
-                    }));
-                };
-
+                const saveData = () => localStorage.setItem('OKI_2026_STORAGE', JSON.stringify({itineraries: itineraries.value, costs: costs.value}));
                 const loadData = () => {
                     const saved = localStorage.getItem('OKI_2026_STORAGE');
                     if (saved) {
@@ -266,21 +206,16 @@
                         costs.value = data.costs || [];
                     }
                 };
-
                 const openAdd = (type) => {
                     modalType.value = type; isEdit.value = false;
-                    form.value = type === 'plan' ? 
-                        { id: Date.now(), category: '景點', time: '10:00', name: '', note: '' } :
-                        { name: '', category: '飲食', amount: '', payMethod: '現金' };
+                    form.value = type === 'plan' ? { id: Date.now(), category: '景點', time: '10:00', name: '', note: '' } : { name: '', category: '飲食', amount: '', payMethod: '現金' };
                     showModal.value = true;
                 };
-
                 const openEdit = (type, index) => {
                     modalType.value = type; isEdit.value = true; currentIdx.value = index;
                     form.value = type === 'plan' ? { ...itineraries.value[currentDate.value][index] } : { ...costs.value[index] };
                     showModal.value = true;
                 };
-
                 const save = () => {
                     if (!form.value.name) return alert("請輸入名稱");
                     if (modalType.value === 'plan') {
@@ -292,35 +227,23 @@
                     }
                     saveData(); showModal.value = false;
                 };
-
                 const deleteItem = () => {
-                    if (confirm("確定要刪除嗎？")) {
+                    if (confirm("確定刪除？")) {
                         if (modalType.value === 'plan') itineraries.value[currentDate.value].splice(currentIdx.value, 1);
                         else costs.value.splice(currentIdx.value, 1);
                         saveData(); showModal.value = false;
                     }
                 };
-
                 const addToPlan = (food) => {
                     itineraries.value[currentDate.value].push({ id: Date.now(), category: '美食', name: food.name, time: '12:00', note: food.desc });
                     saveData(); activeTab.value = 'plan';
                 };
-
-                const searchMap = () => {
-                    if(!form.value.name) return alert("請先輸入名稱");
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.value.name)}`, '_blank');
-                };
-
                 const openNav = (name) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank');
                 const getIcon = (cat) => ({ '景點':'🏖️','住宿':'🏨','美食':'🍜','購物':'🛍️','航班':'✈️','其他':'📍' }[cat]);
                 const getCostIcon = (cat) => ({ '交通':'🚗','飲食':'🍱','住宿':'🏨','門票':'🎫','購物':'🛍️','其他':'💰' }[cat]);
 
                 onMounted(loadData);
-                return {
-                    activeTab, currentDate, tripDays, itineraries, costs, foodList, infoList, fx,
-                    showModal, modalType, isEdit, form, totalCost,
-                    openAdd, openEdit, save, deleteItem, getIcon, getCostIcon, openNav, searchMap, addToPlan, saveData
-                };
+                return { activeTab, currentDate, tripDays, itineraries, costs, foodList, infoList, fx, showModal, modalType, isEdit, form, totalCost, openAdd, openEdit, save, deleteItem, getIcon, getCostIcon, openNav, addToPlan, saveData };
             }
         }).component('draggable', window.vuedraggable).mount('#app');
     </script>
