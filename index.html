@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Okinawa Summer 2026</title>
+    <title>Okinawa Gourmet 2026</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -11,75 +11,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         [v-cloak] { display: none; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; padding-bottom: 120px; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; padding-bottom: 110px; }
         
-        /* 標題與背景優化 */
+        /* 頁首樣式 */
         .header-illustration {
             background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), 
                         url('https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=2073&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            height: 220px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            position: relative;
+            background-size: cover; background-position: center; height: 160px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-shadow: 0 4px 12px rgba(0,0,0,0.6); border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
         }
 
+        /* 橫式滾動選單 */
+        .sticky-nav { position: sticky; top: 0; z-index: 30; background: rgba(248, 250, 252, 0.9); backdrop-blur: md; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .nav-active { background: #0369a1 !important; color: white !important; transform: scale(1.05); }
+        
+        .cat-btn { flex-shrink: 0; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; transition: all 0.3s; background: white; color: #64748b; border: 1px solid #e2e8f0; }
+        .cat-btn-active { background: #0369a1; color: white; border-color: #0369a1; box-shadow: 0 4px 12px rgba(3,105,161,0.2); }
+
+        .nav-active { background: #0369a1 !important; color: white !important; }
         .tab-btn-active { color: #0369a1; border-bottom: 3px solid #0369a1; }
         
-        /* 懸浮按鈕 */
-        .fab { position: fixed; right: 20px; bottom: 125px; width: 60px; height: 60px; background: #0369a1; color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 20px rgba(3,105,161,0.3); z-index: 50; border: none; }
-        
-        /* 列表卡片樣式 */
-        .food-card { transition: all 0.3s ease; }
-        .food-card:active { transform: scale(0.98); opacity: 0.9; }
+        .fab { position: fixed; right: 20px; bottom: 120px; width: 56px; height: 56px; background: #0369a1; color: white; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 8px 16px rgba(3,105,161,0.3); z-index: 50; }
     </style>
 </head>
 <body>
     <div id="app" v-cloak>
-        <header class="header-illustration">
-            <h1 class="text-3xl font-black tracking-widest">沖繩夏日紀行</h1>
-            <p class="text-xs font-bold mt-1 opacity-90">APRIL 14 - APRIL 18, 2026</p>
+        <header v-if="activeTab !== 'food'" class="header-illustration">
+            <h1 class="text-2xl font-black tracking-widest">沖繩夏日紀行</h1>
+            <p class="text-[10px] font-bold opacity-80 uppercase">April 2026 Trip</p>
         </header>
 
-        <main class="px-4 mt-6">
+        <main class="px-4 mt-4">
             <div v-if="activeTab === 'plan'">
                 <div class="flex overflow-x-auto space-x-3 py-2 no-scrollbar mb-4">
                     <button v-for="day in tripDays" :key="day.date" @click="currentDate = day.date"
-                        :class="['flex-shrink-0 w-16 h-20 rounded-2xl flex flex-col items-center justify-center bg-white text-slate-400 shadow-sm transition-all', { 'nav-active': currentDate === day.date }]">
-                        <span class="text-[10px] font-black">{{ day.week }}</span>
-                        <span class="text-xl font-black">{{ day.dayNum }}</span>
+                        :class="['flex-shrink-0 w-14 h-16 rounded-2xl flex flex-col items-center justify-center bg-white text-slate-400 shadow-sm transition-all', { 'nav-active': currentDate === day.date }]">
+                        <span class="text-[9px] font-black">{{ day.week }}</span>
+                        <span class="text-lg font-black">{{ day.dayNum }}</span>
                     </button>
                 </div>
 
                 <draggable v-model="itineraries[currentDate]" item-key="id" handle=".handle" @end="saveData">
                     <template #item="{element, index}">
-                        <div class="mb-4">
-                            <div v-if="index > 0" class="flex items-center justify-center gap-2 my-2 text-slate-300 font-bold text-[10px]">
-                                <span>🚗</span><span class="border-t-2 border-dotted w-12"></span><span>15 min</span>
+                        <div class="mb-3">
+                            <div v-if="index > 0" class="flex items-center justify-center gap-2 my-2 text-slate-200">
+                                <span class="border-t border-dashed w-full"></span>
                             </div>
-                            <div class="bg-white rounded-3xl p-4 shadow-sm flex gap-4 items-center handle" @click="openEdit('plan', index)">
-                                <div class="text-3xl">{{ getIcon(element.category) }}</div>
+                            <div class="bg-white rounded-2xl p-4 shadow-sm flex gap-4 items-center handle" @click="openEdit('plan', index)">
+                                <div class="text-2xl">{{ getIcon(element.category) }}</div>
                                 <div class="flex-1">
                                     <div class="flex justify-between items-start">
-                                        <h3 class="font-bold text-slate-700">{{ element.name }}</h3>
-                                        <span class="text-xs font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded">{{ element.time }}</span>
+                                        <h3 class="font-bold text-slate-700 text-sm">{{ element.name }}</h3>
+                                        <span class="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded">{{ element.time }}</span>
                                     </div>
-                                    <div class="mt-1">
-                                        <span v-if="element.ticket" class="text-[10px] text-orange-500 font-black block">🔖 {{ element.ticket }}</span>
-                                        <p v-if="element.note" class="text-[11px] text-slate-400 italic line-clamp-1">{{ element.note }}</p>
-                                    </div>
-                                    <div class="flex gap-2 mt-3">
-                                        <button @click.stop="openNav(element.name)" class="text-[10px] font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full">導航 ↗</button>
-                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1 italic">{{ element.note }}</p>
                                 </div>
                             </div>
                         </div>
@@ -88,80 +74,76 @@
                 <button class="fab" @click="openAdd('plan')">+</button>
             </div>
 
-            <div v-if="activeTab === 'food'" class="space-y-4 pb-12">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-xl font-black text-slate-800">🍱 沖繩美食大賞</h2>
-                    <span class="text-[10px] font-bold text-slate-400">{{ foodList.length }} 處收藏</span>
+            <div v-if="activeTab === 'food'">
+                <div class="sticky-nav py-4 mb-4">
+                    <h2 class="text-xl font-black text-slate-800 mb-3 px-1">🍱 沖繩美食指南</h2>
+                    <div class="flex overflow-x-auto gap-2 no-scrollbar pb-2">
+                        <button v-for="c in categories" @click="selectedCat = c" 
+                            :class="['cat-btn', { 'cat-btn-active': selectedCat === c }]">{{ c }}</button>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 gap-4">
-                    <div v-for="food in foodList" :key="food.name" class="food-card bg-white rounded-3xl p-4 shadow-sm border border-slate-100 relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-1">
-                            <h3 class="font-bold text-slate-700 text-lg">{{ food.name }}</h3>
-                            <span :class="getTagClass(food.tag)" class="text-[10px] font-black px-2 py-1 rounded-lg">{{ food.tag }}</span>
+
+                <div class="grid grid-cols-1 gap-4 pb-12">
+                    <div v-for="food in filteredFood" :key="food.name" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-50">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-black text-slate-700 text-lg">{{ food.name }}</h3>
+                            <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-lg font-bold">{{ food.area }}</span>
                         </div>
                         <p class="text-[11px] text-slate-400 leading-relaxed mb-4">{{ food.desc }}</p>
                         <div class="flex gap-2">
-                            <button @click="openNav(food.name)" class="flex-1 text-[10px] font-bold py-2.5 bg-slate-50 rounded-xl text-slate-500">查看地圖</button>
-                            <button @click="addToPlan(food)" class="flex-1 text-[10px] font-bold py-2.5 bg-sky-600 rounded-xl text-white shadow-lg shadow-sky-100">加入行程</button>
+                            <button @click="openNav(food.name)" class="flex-1 text-[11px] font-bold py-3 bg-slate-50 rounded-xl text-slate-600">Google 地圖</button>
+                            <button @click="addToPlan(food)" class="flex-1 text-[11px] font-bold py-3 bg-sky-600 rounded-xl text-white shadow-lg shadow-sky-100">加入行程</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div v-if="activeTab === 'info'" class="space-y-4 pb-10">
-                <div class="bg-white p-6 rounded-[32px] shadow-sm text-center">
-                    <p class="text-xs font-bold text-slate-400 mb-1">EXCHANGE RATE</p>
-                    <div class="text-2xl font-black text-sky-600">¥ 1000 ≈ NT$ 210</div>
+            <div v-if="activeTab === 'info'" class="space-y-4">
+                <div class="bg-white p-6 rounded-[32px] shadow-sm">
+                    <h3 class="font-black text-slate-800 mb-4 text-center">💴 日幣換算 (0.21)</h3>
+                    <input type="number" v-model="fx.jpy" @input="fx.twd = (fx.jpy * 0.21).toFixed(0)" class="w-full bg-slate-50 p-4 rounded-2xl text-center text-2xl font-black text-sky-600 outline-none">
+                    <p class="text-center mt-4 text-slate-400 font-bold">≈ TWD ${{ fx.twd }}</p>
                 </div>
             </div>
-            
+
             <div v-if="activeTab === 'cost'" class="pb-10">
-                <div class="bg-slate-900 text-white p-8 rounded-[40px] shadow-xl mb-6 text-center">
-                    <p class="text-xs font-bold opacity-60">TOTAL SPENT</p>
+                <div class="bg-slate-900 text-white p-8 rounded-[32px] mb-6 text-center">
+                    <p class="text-[10px] font-bold opacity-50 uppercase">Total Spent</p>
                     <h2 class="text-4xl font-black">¥{{ totalCost }}</h2>
                 </div>
-                <div v-for="(item, index) in costs" :key="index" class="bg-white p-4 rounded-3xl mb-3 shadow-sm flex justify-between items-center" @click="openEdit('cost', index)">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">{{ getCostIcon(item.category) }}</div>
-                        <p class="font-bold text-slate-700">{{ item.name }}</p>
-                    </div>
+                <div v-for="(item, index) in costs" :key="index" class="bg-white p-4 rounded-2xl mb-3 shadow-sm flex justify-between items-center">
+                    <p class="font-bold text-slate-700">{{ item.name }}</p>
                     <p class="font-black text-slate-700">¥{{ item.amount }}</p>
                 </div>
                 <button class="fab" @click="openAdd('cost')">+</button>
             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-white/95 backdrop-blur-xl border-t flex justify-around items-center z-40 px-2">
-            <button v-for="t in ['plan','info','food','cost']" :key="t" @click="activeTab = t" :class="{'tab-btn-active': activeTab === t}" class="flex flex-col items-center p-2 text-slate-300 transition-all">
-                <span class="text-2xl">{{ {plan:'📍',info:'ℹ️',food:'🍕',cost:'💰'}[t] }}</span>
-                <span class="text-[10px] font-bold mt-1">{{ {plan:'行程',info:'匯率',food:'美食',cost:'帳目'}[t] }}</span>
+        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-white/95 backdrop-blur-xl border-t flex justify-around items-center z-40">
+            <button v-for="t in ['plan','food','cost','info']" :key="t" @click="activeTab = t" :class="{'tab-btn-active': activeTab === t}" class="flex flex-col items-center p-2 text-slate-300">
+                <span class="text-2xl">{{ {plan:'📍',food:'🍕',cost:'💰',info:'ℹ️'}[t] }}</span>
+                <span class="text-[9px] font-bold mt-1">{{ {plan:'行程',food:'美食',cost:'帳目',info:'匯率'}[t] }}</span>
             </button>
         </nav>
 
         <div v-if="showModal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end">
-            <div class="bg-white w-full rounded-t-[40px] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black text-slate-800">{{ isEdit ? '修改項目' : '新增記錄' }}</h3>
-                    <button @click="showModal = false" class="text-slate-300 text-2xl">✕</button>
-                </div>
+            <div class="bg-white w-full rounded-t-[40px] p-8 max-h-[85vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-black">編輯項目</h3><button @click="showModal = false" class="text-slate-300">✕</button></div>
                 <div v-if="modalType === 'plan'" class="space-y-4">
-                    <input v-model="form.name" placeholder="名稱 (例如: 華航 CI120)" class="w-full bg-slate-100 p-4 rounded-2xl font-bold outline-none">
+                    <input v-model="form.name" placeholder="名稱" class="w-full bg-slate-100 p-4 rounded-2xl font-bold">
                     <div class="flex gap-2">
-                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none font-bold">
-                            <option v-for="c in ['航班','景點','住宿','美食','購物','其他']">{{c}}</option>
-                        </select>
-                        <input type="time" v-model="form.time" class="flex-1 bg-slate-100 p-4 rounded-2xl outline-none">
+                        <select v-model="form.category" class="flex-1 bg-slate-100 p-4 rounded-2xl"><option v-for="c in ['航班','景點','住宿','美食','其他']">{{c}}</option></select>
+                        <input type="time" v-model="form.time" class="flex-1 bg-slate-100 p-4 rounded-2xl">
                     </div>
-                    <input v-model="form.ticket" placeholder="航班號/門票/編號" class="w-full bg-slate-100 p-4 rounded-2xl outline-none text-sm">
-                    <textarea v-model="form.note" placeholder="備註..." class="w-full bg-slate-100 p-4 rounded-2xl h-24 outline-none text-sm"></textarea>
+                    <textarea v-model="form.note" placeholder="備註..." class="w-full bg-slate-100 p-4 rounded-2xl h-24"></textarea>
                 </div>
                 <div v-if="modalType === 'cost'" class="space-y-4">
-                    <input v-model="form.name" placeholder="消費名稱" class="w-full bg-slate-100 p-4 rounded-2xl font-bold outline-none">
-                    <input type="number" v-model="form.amount" placeholder="金額 (JPY)" class="w-full bg-slate-100 p-4 rounded-2xl font-black text-sky-600 outline-none">
+                    <input v-model="form.name" placeholder="項目" class="w-full bg-slate-100 p-4 rounded-2xl font-bold">
+                    <input type="number" v-model="form.amount" placeholder="金額 (JPY)" class="w-full bg-slate-100 p-4 rounded-2xl font-black text-sky-600">
                 </div>
                 <div class="flex gap-3 mt-8">
                     <button v-if="isEdit" @click="deleteItem" class="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl font-bold">刪除</button>
-                    <button @click="save" class="flex-[2] py-4 bg-sky-600 text-white rounded-2xl font-bold shadow-lg shadow-sky-200">儲存</button>
+                    <button @click="save" class="flex-[2] py-4 bg-sky-600 text-white rounded-2xl font-bold">儲存</button>
                 </div>
             </div>
         </div>
@@ -173,6 +155,8 @@
             setup() {
                 const activeTab = ref('plan');
                 const currentDate = ref('2026-04-14');
+                const selectedCat = ref('拉麵');
+                const categories = ['拉麵', '定食', '牛排或燒肉', '小甜點咖啡'];
                 const showModal = ref(false);
                 const modalType = ref('plan');
                 const isEdit = ref(false);
@@ -180,51 +164,83 @@
                 const fx = ref({ jpy: 1000, twd: 210 });
 
                 const tripDays = [
-                    { date: '2026-04-14', week: 'Day 1', dayNum: '14' },
-                    { date: '2026-04-15', week: 'Day 2', dayNum: '15' },
-                    { date: '2026-04-16', week: 'Day 3', dayNum: '16' },
-                    { date: '2026-04-17', week: 'Day 4', dayNum: '17' },
-                    { date: '2026-04-18', week: 'Day 5', dayNum: '18' }
+                    { date: '2026-04-14', week: 'D1', dayNum: '14' },
+                    { date: '2026-04-15', week: 'D2', dayNum: '15' },
+                    { date: '2026-04-16', week: 'D3', dayNum: '16' },
+                    { date: '2026-04-17', week: 'D4', dayNum: '17' },
+                    { date: '2026-04-18', week: 'D5', dayNum: '18' }
                 ];
 
                 const itineraries = ref({'2026-04-14':[], '2026-04-15':[], '2026-04-16':[], '2026-04-17':[], '2026-04-18':[]});
                 const costs = ref([]);
                 
-                // 擴充至 20 樣名單：包含早餐、牛排、苦瓜漢堡
+                // --- 龐大的美食資料庫 (約 50 間) ---
                 const foodList = ref([
-                    { name: 'JEF Burger 那霸店', tag: '苦瓜漢堡', desc: '沖繩限定！推薦「苦瓜午餐肉蛋漢堡」，苦瓜與嫩蛋完美融合，必試苦瓜汽水。' },
-                    { name: '傑克牛排館 (Jack\'s)', tag: '有名牛排', desc: '1953年開業老字號。推薦「特選烤里脊牛排」，肉質鮮嫩，美式復古感十足。' },
-                    { name: '牛排屋88 國際通店', tag: '有名牛排', desc: '提供頂級石垣牛，選擇超過20種，附設豐富的湯品沙拉自助吧。' },
-                    { name: '珀塔瑪豬肉蛋飯糰', tag: '排隊早餐', desc: '牧志市場總店必吃，現點現做。靈魂午餐肉搭配厚蛋，大推炸蝦塔塔口味。' },
-                    { name: '風林火山', tag: '在地早餐', desc: '清晨7點營業。主打高湯茶泡飯與現烤魚定食，是開啟元氣一天的低調名店。' },
-                    { name: 'C&C BREAKFAST', tag: '文青早餐', desc: '位於牧志市場旁，主打舒芙蕾鬆餅與夏威夷巴西莓果碗，視覺味覺雙享受。' },
-                    { name: '一銀食堂', tag: '24HR早餐', desc: '在地人的深夜食堂與早餐。必點「湯豆腐 (Yushi Tofu) 套餐」，清爽暖胃。' },
-                    { name: '暖暮拉麵', tag: '必吃拉麵', desc: '曾擊敗一蘭的九州拉麵冠軍。麵條粗細可客製，芝麻香氣豚骨湯頭非常迷人。' },
-                    { name: '百年古家 大家', tag: '阿古豬', desc: '在古色古香的琉球建築中享用阿古豬涮涮鍋，瀑布美景配美食極致奢華。' },
-                    { name: '古宇利島蝦蝦飯', tag: '網美餐車', desc: '蒜香奶油味十足的鮮蝦，配上古宇利大橋的蔚藍海景，拍照效果滿分。' },
-                    { name: '幸福鬆餅 (瀨長島)', tag: '海景甜點', desc: '空氣感十足的舒芙蕾。一邊看飛機起降一邊吃鬆餅，是瀨長島最浪漫的行程。' },
-                    { name: '通堂拉麵 (小祿店)', tag: '男人/女人麵', desc: '沖繩特有的男人麵(濃厚豚骨)與女人麵(清爽鹽味)，免費的小菜醃蘿蔔超爽口。' },
-                    { name: 'Taco Rice Cafe Kijimuna', tag: '塔可飯', desc: '美國村必吃，推薦「歐姆蛋塔可飯」，滑嫩煎蛋覆蓋在鹹香肉醬飯上。' },
-                    { name: 'Blue Seal 冰淇淋', tag: '必吃甜點', desc: '沖繩代表冰淇淋。推薦「紅芋」與「海鹽」口味，隨處可見，夏日救星。' },
-                    { name: '琉球的牛', tag: '頂級燒肉', desc: '那霸國際通排隊名店。入口即化的頂級和牛，記得提早預約否則一位難求。' },
-                    { name: '海人料理 海邦丸', tag: '海鮮定食', desc: '靠近美麗海水族館。推薦「海景海鮮蓋飯」，食材由當地漁港直送。' },
-                    { name: 'A&W 速食店', tag: '美式經典', desc: '日本最早的美式餐廳。必點 Root Beer (樂啤露) 跟起司肉醬薯條。' },
-                    { name: '花笠食堂', tag: '在地家庭菜', desc: '國際通巷弄老店。價格親民，能吃到最道地的苦瓜炒蛋與沖繩麵定食。' },
-                    { name: '屋宜家 (Yagiya)', tag: '沖繩麵', desc: '登錄有形文化財的百年老屋。推薦「豆乳沖繩麵」，湯頭濃郁口感溫潤。' },
-                    { name: '三矢本舖 (恩納村)', tag: '在地點心', desc: '必買「莎翁 (Sata Andagi)」，外酥內扎實的炸甜甜圈，紅芋口味大推薦。' }
+                    // 拉麵類 (12間)
+                    { name: '暖暮拉麵 那霸店', cat: '拉麵', area: '那霸', desc: '九州票選第一，湯頭濃厚而不膩。' },
+                    { name: '通堂拉麵 小祿本店', cat: '拉麵', area: '小祿', desc: '首創男人麵(豚骨)與女人麵(鹽味)。' },
+                    { name: '追風丸', cat: '拉麵', area: '北谷', desc: '北海道味噌風格，麵條彈牙有勁。' },
+                    { name: '琉家', cat: '拉麵', area: '國際通', desc: '獨特的黑焦油豚骨，口感層次豐富。' },
+                    { name: '拉麵 魁力屋', cat: '拉麵', area: '北中城', desc: '京都背脂醬油風格，蔥花份量十足。' },
+                    { name: '康龍拉麵', cat: '拉麵', area: '國際通', desc: '可自選配料，適合客製化口味。' },
+                    { name: '一蘭拉麵 那霸店', cat: '拉麵', area: '國際通', desc: '經典不敗選擇，獨立隔間用餐。' },
+                    { name: '麺や 偶 もとなり', cat: '拉麵', area: '名護', desc: '在地人推薦的濃郁豚骨拉麵。' },
+                    { name: '拉麵 志也', cat: '拉麵', area: '北谷', desc: '美國村附近，深受外國遊客喜愛。' },
+                    { name: '波蔵拉麵', cat: '拉麵', area: '那霸', desc: '濃厚系代表，叉燒肥美大片。' },
+                    { name: '赤道拉麵', cat: '拉麵', area: '宜野灣', desc: '親民價格，道地的沖繩風味拉麵。' },
+                    { name: '麺処 蛇の目', cat: '拉麵', area: '宜野灣', desc: '精緻的煮干(小魚乾)湯頭。' },
+
+                    // 定食類 (13間)
+                    { name: '珀塔瑪豬肉蛋飯糰', cat: '定食', area: '牧志', desc: '沖繩靈魂早餐，現點現做的美味。' },
+                    { name: '花笠食堂', cat: '定食', area: '國際通', desc: '昭和風老店，苦瓜炒豆腐定食必點。' },
+                    { name: '百年古家 大家', cat: '定食', area: '名護', desc: '阿古豬涮涮鍋，在百年古宅用餐。' },
+                    { name: '海鮮料理 海邦丸', cat: '定食', area: '本部', desc: '水族館附近，海鮮蓋飯新鮮飽滿。' },
+                    { name: '一銀食堂', cat: '定食', area: '那霸', desc: '在地人的午餐聖地，魚湯定食極佳。' },
+                    { name: '古宇利島 蝦蝦飯', cat: '定食', area: '古宇利', desc: '經典蒜香奶油蝦，配上無敵海景。' },
+                    { name: '首里城 琉球料理', cat: '定食', area: '首里', desc: '體驗傳統琉球宮廷御膳。' },
+                    { name: 'JEF Burger', cat: '定食', area: '那霸', desc: '沖繩限定苦瓜午餐肉漢堡。' },
+                    { name: '浜屋蕎麥麵', cat: '定食', area: '北谷', desc: '軟嫩入口即化的軟骨沖繩麵。' },
+                    { name: '岸本食堂', cat: '定食', area: '本部', desc: '百年傳承的手工灰水麵。' },
+                    { name: '紀乃川', cat: '定食', area: '本部', desc: '隱藏版在地食堂，炸阿古豬排極美味。' },
+                    { name: '島時間', cat: '定食', area: '恩納', desc: '溫馨的島料理，適合家庭用餐。' },
+                    { name: '道之驛 糸滿', cat: '定食', area: '糸滿', desc: '漁獲直銷中心，最便宜的生魚片。' },
+
+                    // 牛排燒肉 (12間)
+                    { name: '傑克牛排 Jack\'s', cat: '牛排或燒肉', area: '那霸', desc: '1953年創立，最經典的復古牛排館。' },
+                    { name: '牛排屋 88', cat: '牛排或燒肉', area: '國際通', desc: '分店眾多，石垣牛與湯品吃到飽。' },
+                    { name: '琉球的牛', cat: '牛排或燒肉', area: '恩納', desc: '頂級炭火燒肉，肉質入口即化。' },
+                    { name: '燒肉 乃我那霸', cat: '牛排或燒肉', area: '名護', desc: '阿古豬與和牛專賣店，CP值極高。' },
+                    { name: 'Roins 燒肉', cat: '牛排或燒肉', area: '那霸', desc: '精緻時髦的燒肉店，適合約會。' },
+                    { name: '肉屋 文左', cat: '牛排或燒肉', area: '宜野灣', desc: '和牛大師經營，提供最優質切片。' },
+                    { name: 'Steak House 4ndy', cat: '牛排或燒肉', area: '北谷', desc: '美式粗曠風格牛排，肉感紮實。' },
+                    { name: '燒肉 本部牛', cat: '牛排或燒肉', area: '本部', desc: '專賣本部町自產品牌和牛。' },
+                    { name: 'Pound 牛排', cat: '牛排或燒肉', area: '那霸', desc: '秤重計價，想吃多少點多少。' },
+                    { name: '燒肉 五苑', cat: '牛排或燒肉', area: '北中城', desc: '吃到飽首選，深受家庭歡迎。' },
+                    { name: '漢堡排 牛排 29', cat: '牛排或燒肉', area: '那霸', desc: '主打手打漢堡排與特製醬汁。' },
+                    { name: '碧 鐵板燒', cat: '牛排或燒肉', area: '那霸', desc: '女性師傅操刀的高級鐵板料理。' },
+
+                    // 甜點咖啡 (13間)
+                    { name: '幸福鬆餅 瀨長島', cat: '小甜點咖啡', area: '瀨長島', desc: '雲朵般口感，看著海景飛機起降。' },
+                    { name: 'Blue Seal 冰淇淋', cat: '小甜點咖啡', area: '全境', desc: '沖繩代表色，大推紅芋與海鹽口味。' },
+                    { name: 'C&C BREAKFAST', cat: '小甜點咖啡', area: '牧志', desc: '超美巴西莓果碗與歐式早午餐。' },
+                    { name: '港川外人住宅 咖啡', cat: '小甜點咖啡', area: '浦添', desc: '老屋改造的美式小村落，極好拍。' },
+                    { name: 'oHacorte 水果塔', cat: '小甜點咖啡', area: '全境', desc: '沖繩第一的水果塔名店。' },
+                    { name: '三矢本舖 莎翁', cat: '小甜點咖啡', area: '恩納', desc: '在地傳統炸甜甜圈，外酥內軟。' },
+                    { name: 'Jungila 咖啡', cat: '小甜點咖啡', area: '北谷', desc: '波西米亞風，可以躺著看海。' },
+                    { name: '阿嘉那 老屋咖啡', cat: '小甜點咖啡', area: '首里', desc: '隱身首里巷弄，靜謐的午茶時光。' },
+                    { name: '步 甜甜圈', cat: '小甜點咖啡', area: '牧志', desc: '號稱幻之甜甜圈，每天限量預約。' },
+                    { name: '田中果實店', cat: '小甜點咖啡', area: '恩納', desc: '超浮誇芒果冰與熱帶果醬。' },
+                    { name: 'ZHYVAGO COFFEE', cat: '小甜點咖啡', area: '北谷', desc: '美國村工業風咖啡館，氣氛絕佳。' },
+                    { name: '御菓子御殿', cat: '小甜點咖啡', area: '全境', desc: '紅芋塔創始店，現場有DIY體驗。' },
+                    { name: 'Fontana Gelato', cat: '小甜點咖啡', area: '國際通', desc: '繽紛色彩的義式手工冰淇淋。' }
                 ]);
 
-                const form = ref({});
+                const filteredFood = computed(() => foodList.value.filter(f => f.cat === selectedCat.value));
                 const totalCost = computed(() => costs.value.reduce((sum, i) => sum + Number(i.amount || 0), 0));
-                
-                const getTagClass = (tag) => {
-                    const colors = { '苦瓜漢堡':'bg-green-50 text-green-600', '有名牛排':'bg-red-50 text-red-600', '排隊早餐':'bg-orange-50 text-orange-600', '在地早餐':'bg-sky-50 text-sky-600', '必吃拉麵':'bg-amber-50 text-amber-600' };
-                    return colors[tag] || 'bg-slate-50 text-slate-500';
-                };
 
-                const saveData = () => localStorage.setItem('OKI_2026_STORAGE', JSON.stringify({itineraries: itineraries.value, costs: costs.value}));
+                const saveData = () => localStorage.setItem('OKI_GOURMET_DATA', JSON.stringify({itineraries: itineraries.value, costs: costs.value}));
                 const loadData = () => {
-                    const saved = localStorage.getItem('OKI_2026_STORAGE');
+                    const saved = localStorage.getItem('OKI_GOURMET_DATA');
                     if (saved) {
                         const data = JSON.parse(saved);
                         Object.assign(itineraries.value, data.itineraries);
@@ -234,18 +250,17 @@
 
                 const openAdd = (type) => {
                     modalType.value = type; isEdit.value = false;
-                    form.value = type === 'plan' ? { id: Date.now(), category: '景點', time: '10:00', name: '', note: '', ticket: '' } : { name: '', category: '飲食', amount: '' };
+                    form.value = type === 'plan' ? { id: Date.now(), category: '美食', time: '12:00', name: '', note: '' } : { name: '', amount: '' };
                     showModal.value = true;
                 };
 
                 const openEdit = (type, index) => {
                     modalType.value = type; isEdit.value = true; currentIdx.value = index;
-                    form.value = type === 'plan' ? { ...itineraries.value[currentDate.value][index] } : { ...costs.value[index] };
+                    form.value = { ... (type === 'plan' ? itineraries.value[currentDate.value][index] : costs.value[index]) };
                     showModal.value = true;
                 };
 
                 const save = () => {
-                    if (!form.value.name) return alert("請輸入名稱");
                     if (modalType.value === 'plan') {
                         if (isEdit.value) itineraries.value[currentDate.value][currentIdx.value] = { ...form.value };
                         else itineraries.value[currentDate.value].push({ ...form.value });
@@ -257,11 +272,9 @@
                 };
 
                 const deleteItem = () => {
-                    if (confirm("確定刪除？")) {
-                        if (modalType.value === 'plan') itineraries.value[currentDate.value].splice(currentIdx.value, 1);
-                        else costs.value.splice(currentIdx.value, 1);
-                        saveData(); showModal.value = false;
-                    }
+                    if (modalType.value === 'plan') itineraries.value[currentDate.value].splice(currentIdx.value, 1);
+                    else costs.value.splice(currentIdx.value, 1);
+                    saveData(); showModal.value = false;
                 };
 
                 const addToPlan = (food) => {
@@ -270,11 +283,10 @@
                 };
 
                 const openNav = (name) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 沖繩')}`, '_blank');
-                const getIcon = (cat) => ({ '航班':'✈️','景點':'🏖️','住宿':'🏨','美食':'🍜','購物':'🛍️','其他':'📍' }[cat]);
-                const getCostIcon = (cat) => ({ '交通':'🚗','飲食':'🍱','住宿':'🏨','門票':'🎫','購物':'🛍️','其他':'💰' }[cat]);
+                const getIcon = (cat) => ({ '航班':'✈️','景點':'🏖️','住宿':'🏨','美食':'🍜','其他':'📍' }[cat]);
 
                 onMounted(loadData);
-                return { activeTab, currentDate, tripDays, itineraries, costs, foodList, fx, showModal, modalType, isEdit, form, totalCost, openAdd, openEdit, save, deleteItem, getIcon, getCostIcon, openNav, addToPlan, saveData, getTagClass };
+                return { activeTab, currentDate, selectedCat, categories, filteredFood, itineraries, costs, fx, showModal, modalType, isEdit, form, totalCost, openAdd, openEdit, save, deleteItem, getIcon, openNav, addToPlan, tripDays };
             }
         }).component('draggable', window.vuedraggable).mount('#app');
     </script>
