@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Okinawa 2026 - Master List</title>
+    <title>Okinawa 2026 - Final Fixed</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -20,7 +20,7 @@
         .tab-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
         .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 11px; font-weight: bold; }
         .tab-active { color: #0369a1 !important; }
-        .card { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; transition: transform 0.2s; }
+        .card { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .sortable-ghost { opacity: 0.3; background: #e0f2fe; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-blur: 4px; z-index: 200; display: flex; align-items: flex-end; }
@@ -33,7 +33,7 @@
         <header class="header-bg">
             <h1 class="text-2xl font-black tracking-widest text-white">沖繩夏日紀行</h1>
             <div class="absolute bottom-4 right-6 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30 flex items-center gap-2">
-                <span class="text-xs font-black text-white tracking-tighter">4/14 - 4/18 OKINAWA</span>
+                <span class="text-xs font-black text-white tracking-tighter">2026.04.14 - 04.18</span>
             </div>
         </header>
 
@@ -91,23 +91,27 @@
 
             <div v-if="activeTab === 'info'" class="space-y-4 pb-10">
                 <h2 class="text-xl font-black text-slate-800">🧳 旅行重要資訊</h2>
+                
                 <div class="card bg-red-50 border-l-8 border-red-500">
                     <h3 class="font-black text-red-700">🆘 緊急救助</h3>
                     <div class="mt-3 space-y-1 text-xs font-bold text-red-600">
                         <p>📞 報警: 110 | 消防/救護: 119</p>
-                        <p>📞 駐日代表處: +81-98-862-2043</p>
+                        <p>📞 駐日代表處(那霸): +81-98-862-2043</p>
                     </div>
                 </div>
+
                 <div class="card border-l-8 border-indigo-600">
-                    <h3 class="font-black text-slate-700">🏨 住宿精確座標</h3>
+                    <h3 class="font-black text-slate-700">🏨 住宿導航 (地址搜尋)</h3>
                     <div class="mt-4 space-y-6">
-                        <div @click="goMapCoords(26.4363451, 127.765087)">
-                            <p class="text-[10px] font-black text-indigo-600">4/14 恩納村 Maeda</p>
-                            <p class="text-xs text-slate-400 mt-1 underline decoration-dotted">點擊啟動經緯度導航 📍</p>
+                        <div @click="goMapSearch('Maeda Hotel Okinawa')">
+                            <p class="text-[10px] font-black text-indigo-600">4/14 - 4/15 (1晚)</p>
+                            <p class="text-sm font-bold text-slate-700">恩納村 Maeda 飯店</p>
+                            <p class="text-xs text-slate-400 mt-2 underline decoration-indigo-200">📍 點擊開啟地圖搜尋</p>
                         </div>
-                        <div class="pt-4 border-t border-slate-100" @click="goMapCoords(26.1583872, 127.7345247)">
-                            <p class="text-[10px] font-black text-indigo-600">4/15 南城市 Inamine</p>
-                            <p class="text-xs text-slate-400 mt-1 underline decoration-dotted">點擊啟動經緯度導航 📍</p>
+                        <div class="pt-4 border-t border-slate-100" @click="goMapSearch('Inamine Hotel Okinawa')">
+                            <p class="text-[10px] font-black text-indigo-600">4/15 - 4/18 (3晚)</p>
+                            <p class="text-sm font-bold text-slate-700">南城市 Inamine 飯店</p>
+                            <p class="text-xs text-slate-400 mt-2 underline decoration-indigo-200">📍 點擊開啟地圖搜尋</p>
                         </div>
                     </div>
                 </div>
@@ -124,7 +128,7 @@
                     <select v-model="formPlan.category"><option v-for="c in ['景點','住宿','美食','購物','航班','其他']">{{c}}</option></select>
                     <input v-model="formPlan.name" placeholder="名稱">
                     <input type="time" v-model="formPlan.time">
-                    <textarea v-model="formPlan.note" rows="3" placeholder="備註內容..."></textarea>
+                    <textarea v-model="formPlan.note" rows="5" placeholder="備註內容..."></textarea>
                     <div class="flex gap-3 pt-4">
                         <button v-if="isEdit" @click="confirmDeletePlan" class="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl font-black text-xs">刪除</button>
                         <button @click="savePlan" class="flex-[2] py-4 bg-sky-800 text-white rounded-2xl font-black">儲存</button>
@@ -163,7 +167,6 @@
 
                 const categories = ['拉麵', '定食與沖繩麵', '燒肉或牛排', '甜點與咖啡'];
                 
-                // 15x4 = 60 間名單 (排除北部)
                 const foodList = [
                     // 拉麵 (15)
                     { name: '暖暮拉麵 牧志店', cat: '拉麵', area: '那霸', desc: '國際通排隊名店，可自選濃厚度。' },
@@ -181,63 +184,61 @@
                     { name: '武藏家拉麵', cat: '拉麵', area: '浦添', desc: '濃厚家系拉麵愛好者必吃。' },
                     { name: '麵家 宇和', cat: '拉麵', area: '浦添', desc: '魚介風味強烈。' },
                     { name: '風雲拉麵', cat: '拉麵', area: '浦添', desc: '道地博多細麵。' },
-
                     // 定食與沖繩麵 (15)
                     { name: '珀塔瑪飯糰 牧志店', cat: '定食與沖繩麵', area: '那霸', desc: '豬肉蛋飯糰始祖，必排早餐。' },
                     { name: '甘味處 萬丸', cat: '定食與沖繩麵', area: '那霸', desc: '超划算日式早點，點飲料送餐。' },
-                    { name: '味噌飯屋 玉那霸味噌', cat: '定食與沖繩麵', area: '那霸', desc: '百年味噌老店，定食非常溫潤。' },
+                    { name: '味噌飯屋 玉那霸味噌', cat: '定食與沖繩麵', area: '那霸', desc: '百年味噌老店，定食溫潤。' },
                     { name: '首里麵 (Shuri Soba)', cat: '定食與沖繩麵', area: '那霸', desc: '首里城旁，極其強韌的特色麵條。' },
                     { name: '米屋松倉', cat: '定食與沖繩麵', area: '宜野灣', desc: '以頂級米食為主的質感定食。' },
                     { name: '高江洲蕎麥麵', cat: '定食與沖繩麵', area: '浦添', desc: 'ゆし豆腐蕎麥麵發祥店。' },
-                    { name: '濱屋蕎麥麵', cat: '定食與沖繩麵', area: '北谷', desc: '軟骨排骨入口即化，美國村必吃。' },
-                    { name: '謝苅蕎麥麵', cat: '定食與沖繩麵', area: '北谷', desc: '半山腰海景，手工自製麵條。' },
+                    { name: '濱屋蕎麥麵', cat: '定食與沖繩麵', area: '北谷', desc: '軟骨排骨入口即化。' },
+                    { name: '謝苅蕎麥麵', cat: '定食與沖繩麵', area: '北谷', desc: '半山腰海景。' },
                     { name: '楚邊蕎麥麵', cat: '定食與沖繩麵', area: '那霸', desc: '古民家建築，份量十足。' },
-                    { name: '步沙翁 (Ayumi)', cat: '定食與沖繩麵', area: '那霸', desc: '牧志市場內，最道地的沖繩點心沙翁。' },
-                    { name: '花笠食堂', cat: '定食與沖繩麵', area: '那霸', desc: '國際通巷內，平價大份量家常菜。' },
-                    { name: '波布食堂', cat: '定食與沖繩麵', area: '那霸', desc: '驚人的炒麵山，份量奇大。' },
-                    { name: '傑克牛排 (Jack Steak)', cat: '定食與沖繩麵', area: '那霸', desc: '老派洋食定食，沖繩人宵夜首選。' },
+                    { name: '步沙翁 (Ayumi)', cat: '定食與沖繩麵', area: '那霸', desc: '最道地的沖繩點心。' },
+                    { name: '花笠食堂', cat: '定食與沖繩麵', area: '那霸', desc: '平價大份量家常菜。' },
+                    { name: '波布食堂', cat: '定食與沖繩麵', area: '那霸', desc: '驚人的炒麵山。' },
+                    { name: '傑克牛排 (Jack Steak)', cat: '定食與沖繩麵', area: '那霸', desc: '老派洋食定食。' },
                     { name: '食堂 炭火燒', cat: '定食與沖繩麵', area: '那霸', desc: '職人碳火料理。' },
-                    { name: '牧志市場 二樓食堂', cat: '定食與沖繩麵', area: '那霸', desc: '代客料理，體驗沖繩海鮮氛圍。' },
-
-                    // 燒肉或牛排 (15)
-                    { name: '琉球之牛 恩納店', cat: '燒肉或牛排', area: '恩納', desc: '頂級和牛，極致的融化口感。' },
-                    { name: '燒肉本部牧場 那霸店', cat: '燒肉或牛排', area: '那霸', desc: '牧場直營本部牛，午間套餐CP值高。' },
-                    { name: '燒肉王 (Kingu) 新都心', cat: '燒肉或牛排', area: '那霸', desc: '超人氣吃到飽，品項極多。' },
-                    { name: '肉屋 ししゃ', cat: '燒肉或牛排', area: '那霸', desc: '國際通巷內，現挑肉品現烤。' },
-                    { name: '燒肉 88', cat: '燒肉或牛排', area: '那霸', desc: '牛排館跨界燒肉，肉質穩定。' },
-                    { name: 'Roins 那霸店', cat: '燒肉或牛排', area: '那霸', desc: '輕奢路線，適合慶生約會。' },
-                    { name: '七輪燒肉安安', cat: '燒肉或牛排', area: '那霸', desc: '沖繩平價連鎖燒肉代表。' },
-                    { name: '燒肉金城 北谷店', cat: '燒肉或牛排', area: '北谷', desc: '石垣牛專門，也有漢堡排。' },
-                    { name: '燒肉北谷龍', cat: '燒肉或牛排', area: '北谷', desc: '和牛吃到飽，位於美國村商圈。' },
-                    { name: '琉球燒肉 NAKAMA', cat: '燒肉或牛排', area: '恩納', desc: '美式氛圍，厚切肉品豪邁。' },
-                    { name: '燒肉本舖 島牛', cat: '燒肉或牛排', area: '那霸', desc: '阿古豬與縣產和牛名店。' },
-                    { name: '燒肉工房 團', cat: '燒肉或牛排', area: '小祿', desc: '在地人愛店，無煙燒肉。' },
-                    { name: '敘敘苑 PARCO CITY', cat: '燒肉或牛排', area: '浦添', desc: '海景第一排吃高檔燒肉。' },
-                    { name: 'Steak House 88', cat: '燒肉或牛排', area: '那霸', desc: '沖繩歷史最悠久牛排館。' },
-                    { name: 'Blue Ocean Steak', cat: '燒肉或牛排', area: '北谷', desc: '高級牛排，正對美國村夕陽海景。' },
-
-                    // 甜點與咖啡 (15)
-                    { name: '幸福鬆餅 瀨長島店', cat: '甜點與咖啡', area: '豐見城', desc: '看飛機起降配極致舒芙蕾。' },
-                    { name: 'oHacorte 港川店', cat: '甜點與咖啡', area: '浦添', desc: '外人住宅內的水果塔專賣店。' },
-                    { name: 'Houki Boshi 可麗露', cat: '甜點與咖啡', area: '浦添', desc: '沖繩黑糖製作的小巧可麗露。' },
-                    { name: 'ZHYVAGO COFFEE', cat: '甜點與咖啡', area: '北谷', desc: '工業風海景咖啡，美國村地標。' },
-                    { name: '豬頭咖啡 (Junglila)', cat: '甜點與咖啡', area: '北谷', desc: '鞦韆、沙灘地板，超狂網美店。' },
-                    { name: 'Blue Seal 牧志店', cat: '甜點與咖啡', area: '那霸', desc: '沖繩必吃冰淇淋，紅芋口味推薦。' },
-                    { name: 'Ball Donut Park', cat: '甜點與咖啡', area: '那霸', desc: '超可愛球型甜甜圈。' },
-                    { name: 'C&C Breakfast', cat: '甜點與咖啡', area: '那霸', desc: '夏威夷風格，巴西莓碗很正宗。' },
-                    { name: '田芋起司蛋糕 琉球', cat: '甜點與咖啡', area: '那霸', desc: '金武町田芋製作的特色蛋糕。' },
-                    { name: 'Maguro Base', cat: '甜點與咖啡', area: '那霸', desc: '特色冰品與輕食。' },
-                    { name: '港川冰淇淋 雞蛋屋', cat: '甜點與咖啡', area: '浦添', desc: '濃厚蛋香手工冰。' },
-                    { name: 'Coffee Potohoto', cat: '甜點與咖啡', area: '那霸', desc: '榮町市場內，冠軍職人咖啡。' },
-                    { name: '甘味處 樂園', cat: '甜點與咖啡', area: '那霸', desc: '百貨公司內的高級日式甜點。' },
-                    { name: 'VONGO & ANCHOR', cat: '甜點與咖啡', area: '北谷', desc: '美食與咖啡結合，氛圍滿分。' },
-                    { name: 'T&M Coffee', cat: '甜點與咖啡', area: '那霸', desc: '手沖愛好者必訪，近國際通。' }
+                    { name: '牧志市場 二樓食堂', cat: '定食與沖繩麵', area: '那霸', desc: '體驗沖繩海鮮氛圍。' },
+                    // 燒肉牛排 (15)
+                    { name: '琉球之牛 恩納店', cat: '燒肉或牛排', area: '恩納', desc: '頂級和牛，極致融化口感。' },
+                    { name: '燒肉本部牧場 那霸店', cat: '燒肉或牛排', area: '那霸', desc: '牧場直營，午間CP值高。' },
+                    { name: '燒肉王 (Kingu)', cat: '燒肉或牛排', area: '那霸', desc: '超人氣吃到飽。' },
+                    { name: '肉屋 ししゃ', cat: '燒肉或牛排', area: '那霸', desc: '國際通巷內，現挑肉品。' },
+                    { name: '燒肉 88', cat: '燒肉或牛排', area: '那霸', desc: '牛排館跨界燒肉。' },
+                    { name: 'Roins 那霸店', cat: '燒肉或牛排', area: '那霸', desc: '輕奢路線。' },
+                    { name: '七輪燒肉安安', cat: '燒肉或牛排', area: '那霸', desc: '沖繩平價連鎖。' },
+                    { name: '燒肉金城 北谷店', cat: '燒肉或牛排', area: '北谷', desc: '石垣牛專門。' },
+                    { name: '燒肉北谷龍', cat: '燒肉或牛排', area: '北谷', desc: '和牛吃到飽。' },
+                    { name: '琉球燒肉 NAKAMA', cat: '燒肉或牛排', area: '恩納', desc: '美式氛圍。' },
+                    { name: '燒肉本舖 島牛', cat: '燒肉或牛排', area: '那霸', desc: '阿古豬與和牛。' },
+                    { name: '燒肉工房 團', cat: '燒肉或牛排', area: '小祿', desc: '在地人愛店。' },
+                    { name: '敘敘苑 PARCO CITY', cat: '燒肉或牛排', area: '浦添', desc: '海景高檔燒肉。' },
+                    { name: 'Steak House 88', cat: '燒肉或牛排', area: '那霸', desc: '歷史最悠久牛排館。' },
+                    { name: 'Blue Ocean Steak', cat: '燒肉或牛排', area: '北谷', desc: '正對美國村夕陽。' },
+                    // 甜點咖啡 (15)
+                    { name: '幸福鬆餅 瀨長島', cat: '甜點與咖啡', area: '豐見城', desc: '極致舒芙蕾。' },
+                    { name: 'oHacorte 港川店', cat: '甜點與咖啡', area: '浦添', desc: '水果塔專賣。' },
+                    { name: 'Houki Boshi 可麗露', cat: '甜點與咖啡', area: '浦添', desc: '黑糖製作。' },
+                    { name: 'ZHYVAGO COFFEE', cat: '甜點與咖啡', area: '北谷', desc: '美國村地標。' },
+                    { name: '猪頭咖啡', cat: '甜點與咖啡', area: '北谷', desc: '超狂網美店。' },
+                    { name: 'Blue Seal 牧志店', cat: '甜點與咖啡', area: '那霸', desc: '紅芋口味推薦。' },
+                    { name: 'Ball Donut Park', cat: '甜點與咖啡', area: '那霸', desc: '球型甜甜圈。' },
+                    { name: 'C&C Breakfast', cat: '甜點與咖啡', area: '那霸', desc: '夏威夷風格。' },
+                    { name: '田芋起司蛋糕', cat: '甜點與咖啡', area: '那霸', desc: '特色田芋製作。' },
+                    { name: 'Maguro Base', cat: '甜點與咖啡', area: '那霸', desc: '特色冰品。' },
+                    { name: '港川冰淇淋', cat: '甜點與咖啡', area: '浦添', desc: '手工冰。' },
+                    { name: 'Coffee Potohoto', cat: '甜點與咖啡', area: '那霸', desc: '冠軍職人咖啡。' },
+                    { name: '甘味處 樂園', cat: '甜點與咖啡', area: '那霸', desc: '高級日式甜點。' },
+                    { name: 'VONGO & ANCHOR', cat: '甜點與咖啡', area: '北谷', desc: '氛圍滿分。' },
+                    { name: 'T&M Coffee', cat: '甜點與咖啡', area: '那霸', desc: '手沖愛好者。' }
                 ];
 
+                // 補回詳細航班資訊
                 const itineraries = ref({
-                    '2026-04-14': [{ id: 1, category: '航班', name: '虎航 IT728', time: '15:45', note: '抵達 18:10\n訂位: G23NJL / F5E9YC' }],
+                    '2026-04-14': [{ id: 101, category: '航班', name: '虎航 IT728 (KHH → OKA)', time: '15:45', note: '抵達時間：18:10\n訂位代號：G23NJL、F5E9YC\n行李：手提 10KG / 托運總計 60KG' }],
                     '2026-04-15': [], '2026-04-16': [], '2026-04-17': [],
-                    '2026-04-18': [{ id: 2, category: '航班', name: '虎航 IT289', time: '14:00', note: '抵達 14:55\n訂位: U1QDSB' }]
+                    '2026-04-18': [{ id: 102, category: '航班', name: '虎航 IT289 (OKA → KHH)', time: '14:00', note: '抵達時間：14:55\n訂位代號：U1QDSB\n行李：手提 10KG / 托運總計 75KG' }]
                 });
 
                 const filteredFood = computed(() => foodList.filter(f => f.cat === selectedCat.value));
@@ -252,7 +253,7 @@
                             const [moved] = list.splice(evt.oldIndex, 1);
                             list.splice(evt.newIndex, 0, moved);
                             itineraries.value[currentDate.value] = list;
-                            localStorage.setItem('OKI_FINAL_DRAG', JSON.stringify(itineraries.value));
+                            localStorage.setItem('OKI_V6_FINAL', JSON.stringify(itineraries.value));
                         }
                     });
                 };
@@ -264,23 +265,25 @@
                 const savePlan = () => {
                     if(isEdit.value) itineraries.value[currentDate.value][currentIdx.value] = { ...formPlan.value };
                     else itineraries.value[currentDate.value].push({ ...formPlan.value });
-                    localStorage.setItem('OKI_FINAL_DRAG', JSON.stringify(itineraries.value)); showPlanModal.value = false;
+                    localStorage.setItem('OKI_V6_FINAL', JSON.stringify(itineraries.value)); showPlanModal.value = false;
                 };
-                const confirmDeletePlan = () => { if(confirm("刪除？")) { itineraries.value[currentDate.value].splice(currentIdx.value, 1); showPlanModal.value = false; } };
+                const confirmDeletePlan = () => { if(confirm("確定刪除此項目？")) { itineraries.value[currentDate.value].splice(currentIdx.value, 1); localStorage.setItem('OKI_V6_FINAL', JSON.stringify(itineraries.value)); showPlanModal.value = false; } };
                 const addFoodToPlan = (f) => { 
                     itineraries.value[currentDate.value].push({ id: Date.now(), category:'美食', name: f.name, time:'12:00', note: f.desc }); 
-                    activeTab.value = 'plan'; 
+                    localStorage.setItem('OKI_V6_FINAL', JSON.stringify(itineraries.value)); activeTab.value = 'plan'; 
                 };
-                const goMapCoords = (lat, lng) => window.open(`http://googleusercontent.com/maps.google.com/?q=${lat},${lng}`);
+                
+                // 改回地址搜尋
+                const goMapSearch = (query) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`);
                 const getIcon = (cat) => ({ '航班':'✈️','景點':'🏖️','住宿':'🏨','美食':'🍜','購物':'🛍️' }[cat] || '📍');
 
                 onMounted(() => {
-                    const saved = localStorage.getItem('OKI_FINAL_DRAG');
+                    const saved = localStorage.getItem('OKI_V6_FINAL');
                     if(saved) itineraries.value = JSON.parse(saved);
                     nextTick(() => initSortable());
                 });
 
-                return { activeTab, currentDate, selectedCat, categories, tripDays, itineraries, filteredFood, goMapCoords, addFoodToPlan, getIcon, openAddPlan, openEditPlan, savePlan, confirmDeletePlan, showPlanModal, formPlan, isEdit };
+                return { activeTab, currentDate, selectedCat, categories, tripDays, itineraries, filteredFood, goMapSearch, addFoodToPlan, getIcon, openAddPlan, openEditPlan, savePlan, confirmDeletePlan, showPlanModal, formPlan, isEdit };
             }
         }).mount('#app');
     </script>
