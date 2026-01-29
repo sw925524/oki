@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Okinawa 2026 Final</title>
+    <title>Okinawa 2026 Final Precision</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
@@ -25,6 +25,7 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-blur: 4px; z-index: 200; display: flex; align-items: flex-end; }
         .modal-content { background: white; width: 100%; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px; max-height: 90vh; overflow-y: auto; }
         input, select, textarea { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 4px; outline: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
@@ -68,7 +69,7 @@
             <div v-if="activeTab === 'food'">
                 <div class="sticky top-0 bg-[#f1f5f9] pt-2 pb-4 z-10">
                     <h2 class="text-xl font-black text-slate-800 mb-4">🍱 美食清單</h2>
-                    <div class="flex overflow-x-auto gap-2 no-scrollbar">
+                    <div class="flex overflow-x-auto gap-2 no-scrollbar px-1">
                         <button v-for="c in categories" @click="selectedCat = c" 
                             :class="['cat-tag', selectedCat === c ? 'cat-tag-active' : '']">{{ c }}</button>
                     </div>
@@ -79,9 +80,9 @@
                             <h3 class="font-black text-slate-700">{{ f.name }}</h3>
                             <span class="text-[10px] bg-slate-100 text-slate-400 px-2 py-1 rounded font-bold">{{ f.area }}</span>
                         </div>
-                        <p class="text-[11px] text-slate-500 mb-4">{{ f.desc }}</p>
+                        <p class="text-[11px] text-slate-500 mb-4 leading-relaxed">{{ f.desc }}</p>
                         <div class="flex gap-2">
-                            <button @click="goMap(f.name)" class="flex-1 py-2.5 bg-slate-50 rounded-xl text-[11px] font-bold text-slate-600 border border-slate-100">地圖搜尋</button>
+                            <button @click="goMapSearch(f.name)" class="flex-1 py-2.5 bg-slate-50 rounded-xl text-[11px] font-bold text-slate-600 border border-slate-100">地圖搜尋</button>
                             <button @click="addFoodToPlan(f)" class="flex-1 py-2.5 bg-sky-800 text-white rounded-xl text-[11px] font-bold shadow-md">加入行程</button>
                         </div>
                     </div>
@@ -94,24 +95,30 @@
                 <div class="card bg-red-50 border-l-8 border-red-500">
                     <h3 class="font-black text-red-700 flex items-center gap-2">🆘 緊急救助資訊</h3>
                     <div class="mt-3 space-y-2 text-xs font-bold text-red-600">
-                        <p>報警: 110 | 消防/救護: 119</p>
-                        <p>駐日代表處(那霸): +81-98-862-2043</p>
-                        <p>外國人醫療諮詢: 0570-000-911</p>
+                        <p>📞 報警: 110 | 消防/救護: 119</p>
+                        <p>📞 駐日代表處(那霸): +81-98-862-2043</p>
+                        <p>🚑 外國人醫療諮詢: 0570-000-911</p>
                     </div>
                 </div>
 
                 <div class="card border-l-8 border-indigo-600">
-                    <h3 class="font-black text-slate-700 flex items-center gap-2">🏨 住宿預定紀錄</h3>
-                    <div class="mt-4 space-y-4">
-                        <div>
-                            <p class="text-[10px] font-black text-indigo-600">4/14 - 4/15 (1晚)</p>
+                    <h3 class="font-black text-slate-700 flex items-center gap-2">🏨 住宿預定與座標</h3>
+                    <div class="mt-4 space-y-5">
+                        <div @click="goMapCoords(26.4363451, 127.765087)">
+                            <p class="text-[10px] font-black text-indigo-600 uppercase">4/14 - 4/15 (1晚)</p>
                             <p class="text-sm font-bold text-slate-700 mt-1">恩納村 Maeda 飯店</p>
-                            <button @click="goMap('Maeda 1460-4 Onna Okinawa')" class="text-[10px] text-slate-400 underline mt-1">904-0417 沖繩, 恩納, Maeda 1460-4</button>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-tight">904-0417 沖繩, 恩納, Maeda 1460-4</p>
+                            <div class="mt-2 flex items-center gap-1 text-[10px] text-sky-600 font-bold">
+                                📍 點擊開啟精確位置導航
+                            </div>
                         </div>
-                        <div class="pt-3 border-t border-slate-100">
-                            <p class="text-[10px] font-black text-indigo-600">4/15 - 4/18 (3晚)</p>
+                        <div class="pt-4 border-t border-slate-100" @click="goMapCoords(26.1583872, 127.7345247)">
+                            <p class="text-[10px] font-black text-indigo-600 uppercase">4/15 - 4/18 (3晚)</p>
                             <p class="text-sm font-bold text-slate-700 mt-1">南城市 Inamine 飯店</p>
-                            <button @click="goMap('大里稲嶺1249-8 Okinawa')" class="text-[10px] text-slate-400 underline mt-1">901-1204 沖繩, 南城市, 大里稲嶺１２４９−８</button>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-tight">901-1204 沖繩, 南城市, 大里稲嶺１２４９−８</p>
+                            <div class="mt-2 flex items-center gap-1 text-[10px] text-sky-600 font-bold">
+                                📍 點擊開啟精確位置導航
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -119,8 +126,8 @@
                 <div class="card border-l-8 border-sky-600">
                     <h3 class="font-black text-slate-700">🚗 租車參考</h3>
                     <div class="flex gap-2 mt-3">
-                        <button @click="goMap('ORIX Rent a car Naha Airport')" class="flex-1 py-2 bg-sky-50 text-sky-700 text-[10px] font-bold rounded-lg border border-sky-100">ORIX 那霸空港</button>
-                        <button @click="goMap('OTS Rent a car Rinku Toyosaki')" class="flex-1 py-2 bg-orange-50 text-orange-700 text-[10px] font-bold rounded-lg border border-orange-100">OTS 臨空豐崎</button>
+                        <button @click="goMapSearch('ORIX Rent a car Naha Airport')" class="flex-1 py-2 bg-sky-50 text-sky-700 text-[10px] font-bold rounded-lg border border-sky-100">ORIX 那霸空港</button>
+                        <button @click="goMapSearch('OTS Rent a car Rinku Toyosaki')" class="flex-1 py-2 bg-orange-50 text-orange-700 text-[10px] font-bold rounded-lg border border-orange-100">OTS 臨空豐崎</button>
                     </div>
                 </div>
             </div>
@@ -129,7 +136,7 @@
         <div v-if="showPlanModal" class="modal-overlay" @click.self="showPlanModal = false">
             <div class="modal-content">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black text-slate-800">{{ isEdit ? '編輯行程' : '新增行程' }}</h3>
+                    <h3 class="text-xl font-black text-slate-800">{{ isEdit ? '編輯項目' : '新增項目' }}</h3>
                     <button @click="showPlanModal = false" class="text-slate-300">✕</button>
                 </div>
                 <div class="space-y-4">
@@ -138,12 +145,11 @@
                     </select>
                     <input v-model="formPlan.name" placeholder="名稱">
                     <input type="time" v-model="formPlan.time">
-                    <input v-model="formPlan.openTime" placeholder="營業時間/備註">
-                    <input v-if="formPlan.category === '景點'" v-model="formPlan.ticket" placeholder="門票費用">
-                    <textarea v-model="formPlan.note" rows="4" placeholder="詳細說明或備註"></textarea>
+                    <input v-model="formPlan.openTime" placeholder="時間/備註">
+                    <textarea v-model="formPlan.note" rows="4" placeholder="詳細內容..."></textarea>
                     <div class="flex gap-3 pt-4">
                         <button v-if="isEdit" @click="confirmDeletePlan" class="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl font-black uppercase text-xs">刪除</button>
-                        <button @click="savePlan" class="flex-[2] py-4 bg-sky-800 text-white rounded-2xl font-black shadow-lg">儲存</button>
+                        <button @click="savePlan" class="flex-[2] py-4 bg-sky-800 text-white rounded-2xl font-black shadow-lg">儲存儲存</button>
                     </div>
                 </div>
             </div>
@@ -182,17 +188,10 @@
                     { date: '2026-04-18', week: 'D5', dayNum: '18' }
                 ];
 
-                // 初始預設航班與訂單資訊
                 const defaultItineraries = {
-                    '2026-04-14': [
-                        { category: '航班', name: '虎航 IT728 (KHH → OKA)', time: '15:45', openTime: '預計抵達 18:10', note: '訂位代號：G23NJL、F5E9YC\n行李：手提 10KG / 托運總計 60KG' }
-                    ],
-                    '2026-04-15': [],
-                    '2026-04-16': [],
-                    '2026-04-17': [],
-                    '2026-04-18': [
-                        { category: '航班', name: '虎航 IT289 (OKA → KHH)', time: '14:00', openTime: '預計抵達 14:55', note: '訂位代號：U1QDSB\n行李：手提 10KG / 托運總計 75KG' }
-                    ]
+                    '2026-04-14': [{ category: '航班', name: '虎航 IT728 (KHH → OKA)', time: '15:45', openTime: '抵達 18:10', note: '訂位代號：G23NJL、F5E9YC\n行李：手提 10KG / 托運總計 60KG' }],
+                    '2026-04-15': [], '2026-04-16': [], '2026-04-17': [],
+                    '2026-04-18': [{ category: '航班', name: '虎航 IT289 (OKA → KHH)', time: '14:00', openTime: '抵達 14:55', note: '訂位代號：U1QDSB\n行李：手提 10KG / 托運總計 75KG' }]
                 };
 
                 const itineraries = ref(defaultItineraries);
@@ -204,14 +203,13 @@
                     { name: '珀塔瑪飯糰', cat: '定食', area: '牧志', desc: '現做豬肉蛋飯糰，沖繩必排早餐。' },
                     { name: '幸福鬆餅', cat: '小甜點咖啡', area: '瀨長島', desc: '舒芙蕾口感，海景飛機第一排。' },
                     { name: '琉球的牛', cat: '牛排或燒肉', area: '恩納', desc: '頂級燒肉代表，肉質極致細膩。' }
-                    // ... 更多名單保持在內存
                 ];
 
-                const filteredFood = computed(() => foodList.filter(f => f.cat === selectedCat.value || selectedCat.value === '拉麵'));
+                const filteredFood = computed(() => foodList.filter(f => f.cat === selectedCat.value));
                 
                 const openAddPlan = () => {
                     isEdit.value = false;
-                    formPlan.value = { category:'景點', name:'', time:'10:00', openTime:'', ticket:'', note:'' };
+                    formPlan.value = { category:'景點', name:'', time:'10:00', openTime:'', note:'' };
                     showPlanModal.value = true;
                 };
 
@@ -230,7 +228,7 @@
                 };
 
                 const confirmDeletePlan = () => {
-                    if(confirm("刪除行程？")) {
+                    if(confirm("確定刪除此行程項目嗎？")) {
                         itineraries.value[currentDate.value].splice(currentIdx.value, 1);
                         saveToLocal(); showPlanModal.value = false;
                     }
@@ -241,16 +239,20 @@
                     saveToLocal(); activeTab.value = 'plan';
                 };
 
-                const saveToLocal = () => localStorage.setItem('OKI_TRAVEL_DATA_V3', JSON.stringify(itineraries.value));
-                const goMap = (query) => window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query));
+                const saveToLocal = () => localStorage.setItem('OKI_FINAL_VER_4', JSON.stringify(itineraries.value));
+                
+                // 地圖功能：搜尋與座標定位
+                const goMapSearch = (query) => window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query));
+                const goMapCoords = (lat, lng) => window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
+                
                 const getIcon = (cat) => ({ '航班':'✈️','景點':'🏖️','住宿':'🏨','美食':'🍜','購物':'🛍️','其他':'📍' }[cat] || '📍');
 
                 onMounted(() => {
-                    const saved = localStorage.getItem('OKI_TRAVEL_DATA_V3');
+                    const saved = localStorage.getItem('OKI_FINAL_VER_4');
                     if(saved) itineraries.value = JSON.parse(saved);
                 });
 
-                return { activeTab, currentDate, selectedCat, categories, tripDays, itineraries, filteredFood, goMap, addFoodToPlan, getIcon, openAddPlan, openEditPlan, savePlan, confirmDeletePlan, showPlanModal, formPlan, isEdit };
+                return { activeTab, currentDate, selectedCat, categories, tripDays, itineraries, filteredFood, goMapSearch, goMapCoords, addFoodToPlan, getIcon, openAddPlan, openEditPlan, savePlan, confirmDeletePlan, showPlanModal, formPlan, isEdit };
             }
         }).mount('#app');
     </script>
